@@ -1,6 +1,8 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, Blueprint
 from flask_mysqldb import MySQL
 from config import confgig
+from function_jwt import write_token, validate_token
+from dotenv import load_dotenv
 
 app = Flask(__name__)
 conexion = MySQL(app)
@@ -19,6 +21,27 @@ def user_registration():
       
      return jsonify({'Message': "User Registered Successfully"})
 
+@app.route("/autentication", methods=["POST"])
+def autentication_user():
+    data = request.get_json()
+    email = data['email']
+    password = data['pasword']
+
+    cursor = conexion.connection.cursor()
+
+    sql = "SELECT email,pasword FROM users"
+    cursor.execute(sql)
+    datos = cursor.fetchall()
+    users = []
+
+    for user in datos:
+        if user == (email, password):
+            return write_token(data=request.get_json())
+        else:
+            continue
+
+    return jsonify({'Message': "User no found :("})
+                          
 @app.route("/movies") #enlista todas las pelicualas
 def list_movies():
 
@@ -36,12 +59,11 @@ def list_movies():
 
     return jsonify({'movies':movies, 'mensaje': "Peliculas listadas"})
 
-
 def page_not_found(error):
     return "<h1> La pagina que intentas buscar no existe...<h1>" ,404
 
-
 if __name__ == '__main__':
+    load_dotenv()
     app.config.from_object(confgig['development'])
     app.register_error_handler(404,page_not_found)
     app.run()
