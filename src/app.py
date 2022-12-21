@@ -1,8 +1,8 @@
 from flask import Flask, jsonify, request, Blueprint
 from flask_mysqldb import MySQL
-from config import confgig
 from function_jwt import write_token, validate_token
 from dotenv import load_dotenv
+from config import confgig
 from datetime import datetime
 
 app = Flask(__name__)
