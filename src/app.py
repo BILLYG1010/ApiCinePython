@@ -1,9 +1,9 @@
 from flask import Flask, jsonify, request, Blueprint
 from flask_mysqldb import MySQL
-from function_jwt import write_token, validate_token
 from dotenv import load_dotenv
 from config import confgig
 from datetime import datetime
+from function_jwt import write_token #validate_token
 
 app = Flask(__name__)
 conexion = MySQL(app)
@@ -68,7 +68,7 @@ def list_movies():
 def buy_tikets():
 
      cursor = conexion.connection.cursor()
-
+     id = request.json['id']
      movie = request.json['id_movie']
      seat =  int(request.json['id_seat'])
      created_at = datetime.now()
@@ -81,8 +81,8 @@ def buy_tikets():
         if id_seat[0] == seat:
             return jsonify({'Message': "Seat not available:("})
         
-     sql2 = """INSERT INTO shopping (id_movie, id_seat,created_at) 
-     VALUES ('{0}', '{1}','{2}')""".format(movie, seat, created_at)
+     sql2 = """INSERT INTO shopping (id,id_movie, id_seat,created_at) 
+     VALUES ('{0}', '{1}','{2}', '{3}')""".format(id,movie, seat, created_at)
 
      cursor.execute(sql2)
      conexion.connection.commit()
@@ -139,7 +139,7 @@ def delete_ticket(id_ticket):
             return jsonify({'Message': "TICKET REMOVED"})
         
 def page_not_found(error):
-    return "<h1> La pagina que intentas buscar no existe...<h1>" ,404
+    return "<h1> The page you're trying to search for doesn't exist...<h1>" ,404
 
 if __name__ == '__main__':
     load_dotenv()
